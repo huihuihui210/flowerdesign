@@ -207,7 +207,6 @@
     </footer>
 
     <script>
-        // 【注意】：此处移除了所有 API Key，前端纯净安全
         let selectedFlowers = [];
         let mainFlowerId = null;
         let selectedTier = '元气组合';
@@ -262,7 +261,9 @@
             resetImageGeneration();
         });
 
-        // AI 图片生成逻辑 (通过安全的 Netlify 云函数调用)
+        // ==========================================
+        // 这里是修改后的图片生成及解析逻辑
+        // ==========================================
         async function generateAIImage() {
             if (!selectedFlowers.length || !mainFlowerId) return;
 
@@ -272,7 +273,6 @@
 
             if (!mainFlower) return;
 
-            // 构建绘图提示词
             let wrappingStyle = "";
             if (selectedTier === "单支尝鲜") wrappingStyle = "minimalist brown craft paper wrapping, rustic look";
             else if (selectedTier === "元气组合") wrappingStyle = "aesthetic Korean style grid paper wrapping with a thin ribbon";
@@ -287,7 +287,6 @@
             imageResult.classList.add('hidden');
 
             try {
-                // 【核心修改】：通过 POST 请求调用后端接口，完全隐藏密钥
                 const response = await fetch('/.netlify/functions/generateImage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -300,14 +299,31 @@
                 }
                 
                 const result = await response.json();
+                console.log("===== AI返回的真实数据 =====", result); 
                 
-                // 解析七牛云 Kling-v1 返回的图片结构
+                let imageUrl = "";
+
+                // 尝试适配多种可能的图片返回格式
                 if (result.data && result.data[0] && result.data[0].url) {
-                    bouquetImg.src = result.data[0].url;
+                    imageUrl = result.data[0].url; 
+                } else if (result.data && result.data.image_url) {
+                    imageUrl = result.data.image_url;
+                } else if (result.image_url) {
+                    imageUrl = result.image_url;
+                } else if (result.images && result.images[0] && result.images[0].url) {
+                    imageUrl = result.images[0].url;
+                } else if (result.data && result.data[0] && result.data[0].b64_json) {
+                    imageUrl = "data:image/jpeg;base64," + result.data[0].b64_json;
+                }
+
+                if (imageUrl) {
+                    bouquetImg.src = imageUrl;
                     imageLoading.classList.add('hidden');
                     imageResult.classList.remove('hidden');
                 } else {
-                    throw new Error('未返回图片地址');
+                    // 把真实数据的一部分截取出来显示在错误提示里，方便我们排查
+                    const debugInfo = JSON.stringify(result).substring(0, 150);
+                    throw new Error('未找到图片字段，原数据: ' + debugInfo + '...');
                 }
             } catch (error) {
                 console.error(error);
@@ -330,7 +346,6 @@
             if (selectedFlowers.length > 0) {
                 configArea.classList.remove('hidden');
                 resultArea.classList.remove('hidden');
-                // 确保有主花被选中
                 if (!mainFlowerId || !selectedFlowers.find(f => f.id === mainFlowerId)) {
                     mainFlowerId = selectedFlowers[0].id;
                 }
@@ -361,14 +376,12 @@
         };
 
         function generateCombination() {
-            // 安全校验：如果没有选定花朵或主花ID，则退出
             if (!selectedFlowers.length || !mainFlowerId) return;
 
             const mainFlower = selectedFlowers.find(f => f.id === mainFlowerId);
             const secondaryFlowers = selectedFlowers.filter(f => f.id !== mainFlowerId);
             const qty = mainQtyInput.value;
 
-            // 再次确认主花数据是否存在
             if (!mainFlower) return;
 
             let html = `<div class="mb-2 uppercase text-[10px] tracking-widest text-gray-400">— 组合预览 —</div>`;
@@ -396,10 +409,9 @@
             toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2 rounded-full text-[10px] z-50 shadow-2xl';
             toast.innerText = msg;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            setTimeout(() => toast.remove(), 4000); // 增加了一点显示时间，方便看报错信息
         }
 
-        // 默认触发一次初始化
         document.querySelector('[data-tier="元气组合"]').click();
     </script>
 </body>
