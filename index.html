@@ -60,7 +60,6 @@
 </head>
 <body>
 
-    <!-- 顶部展示区 -->
     <header class="h-screen flex flex-col justify-center items-center text-center p-6 relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-20">
             <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -79,7 +78,6 @@
         </div>
     </header>
 
-    <!-- 花材选择区 -->
     <section id="selection-zone" class="max-w-6xl mx-auto px-6 py-20">
         <div class="text-center mb-16">
             <h2 class="text-3xl mb-2">心情采摘区</h2>
@@ -125,19 +123,16 @@
         </div>
     </section>
 
-    <!-- 定制细节配置区 -->
     <section id="config-area" class="max-w-4xl mx-auto px-6 py-10 hidden">
         <div class="bg-white rounded-[2rem] p-8 ins-shadow">
             <h2 class="text-xl mb-8 text-center serif italic tracking-widest text-gray-400">— 定制小卡 —</h2>
             
             <div class="space-y-8">
-                <!-- 主花/次花角色分配 -->
                 <div id="role-selection">
                     <p class="text-xs font-bold uppercase tracking-widest mb-4">设定主配关系</p>
                     <div id="role-inputs" class="space-y-3"></div>
                 </div>
 
-                <!-- 主花数量 -->
                 <div>
                     <div class="flex justify-between items-center mb-4">
                         <label class="text-xs font-bold uppercase tracking-widest">主花数量 (1-10支)：</label>
@@ -146,7 +141,6 @@
                     <input type="range" id="main-qty" min="1" max="10" value="1" class="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-gray-800">
                 </div>
 
-                <!-- 价格档位 -->
                 <div>
                     <p class="text-xs font-bold uppercase tracking-widest mb-4">选择适合的预算：</p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -172,20 +166,18 @@
         </div>
     </section>
 
-    <!-- 结果展示区 -->
     <section id="result-area" class="max-w-xl mx-auto px-6 py-20 hidden">
         <div class="bg-[#f0f0f0] p-8 rounded-2xl border border-white relative">
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 py-1 text-[10px] border border-gray-200 tracking-[0.2em] uppercase">Order Manifest</div>
             <div id="combination-text" class="text-sm text-center italic space-y-4 pt-4"></div>
             
-            <!-- 生成图片预览区域 -->
             <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                 <button id="generate-btn" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-full text-xs tracking-widest hover:bg-gray-50 transition flex items-center justify-center mx-auto shadow-sm">
                     <span>✨ 生成专属预览图</span>
                 </button>
                 <div id="image-loading" class="hidden mt-4 text-xs text-gray-500 flex flex-col items-center justify-center">
                     <div class="loader mb-2"></div>
-                    AI 正在构思您的浪漫花束...
+                    <span id="loading-msg">AI 正在为您创建画板...</span>
                 </div>
                 <div id="image-result" class="hidden mt-6">
                     <div class="serif italic text-sm mb-4 text-gray-500">"为你精心准备的效果预览"</div>
@@ -221,6 +213,7 @@
         const tierBtns = document.querySelectorAll('.tier-btn');
         const generateBtn = document.getElementById('generate-btn');
         const imageLoading = document.getElementById('image-loading');
+        const loadingMsg = document.getElementById('loading-msg');
         const imageResult = document.getElementById('image-result');
         const bouquetImg = document.getElementById('bouquet-img');
 
@@ -262,7 +255,7 @@
         });
 
         // ==========================================
-        // 这里是修改后的图片生成及解析逻辑
+        // 核心修改：轮询模式的 AI 图片生成
         // ==========================================
         async function generateAIImage() {
             if (!selectedFlowers.length || !mainFlowerId) return;
@@ -283,37 +276,58 @@
             const prompt = `A professional aesthetic 'ins style' photography of a flower bouquet. Main feature: ${qty} stems of ${mainFlower.en} as primary flowers ${accents}. Wrapping: ${wrappingStyle}. Soft natural window light, minimalist neutral cream background, clean composition, high-end florist quality. Close up shot.`;
 
             generateBtn.classList.add('hidden');
+            loadingMsg.innerText = 'AI 正在为您生成画板凭证...';
             imageLoading.classList.remove('hidden');
             imageResult.classList.add('hidden');
 
             try {
+                // 第一步：请求云函数，获取 task_id（拿号牌）
                 const response = await fetch('/.netlify/functions/generateImage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: prompt })
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error?.message || errorData.error || '云函数请求失败');
-                }
+                if (!response.ok) throw new Error('云函数请求失败');
                 
                 const result = await response.json();
-                console.log("===== AI返回的真实数据 =====", result); 
                 
-                let imageUrl = "";
+                if (!result.task_id) {
+                    throw new Error('未获取到任务ID，原数据: ' + JSON.stringify(result).substring(0, 50));
+                }
 
-                // 尝试适配多种可能的图片返回格式
-                if (result.data && result.data[0] && result.data[0].url) {
-                    imageUrl = result.data[0].url; 
-                } else if (result.data && result.data.image_url) {
-                    imageUrl = result.data.image_url;
-                } else if (result.image_url) {
-                    imageUrl = result.image_url;
-                } else if (result.images && result.images[0] && result.images[0].url) {
-                    imageUrl = result.images[0].url;
-                } else if (result.data && result.data[0] && result.data[0].b64_json) {
-                    imageUrl = "data:image/jpeg;base64," + result.data[0].b64_json;
+                const taskId = result.task_id;
+                
+                // 第二步：拿着 task_id 轮询查询结果（排队等出图）
+                let isCompleted = false;
+                let imageUrl = "";
+                let attempts = 0;
+                
+                loadingMsg.innerText = '画板已建好，正在绘制，预计等待 15~30 秒...';
+
+                // 最多查 20 次，每次等 3 秒（总共留了1分钟的耐心）
+                while (!isCompleted && attempts < 20) { 
+                    attempts++;
+                    await new Promise(resolve => setTimeout(resolve, 3000)); 
+                    
+                    const statusRes = await fetch('/.netlify/functions/generateImage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId })
+                    });
+                    
+                    const statusData = await statusRes.json();
+                    console.log(`第 ${attempts} 次查询状态:`, statusData.status);
+                    
+                    // 七牛云的状态码：succeed 表示成功
+                    if (statusData.status === "succeed") {
+                        isCompleted = true;
+                        if (statusData.data && statusData.data[0] && statusData.data[0].url) {
+                            imageUrl = statusData.data[0].url;
+                        }
+                    } else if (statusData.status === "failed") {
+                        throw new Error('生成失败: ' + (statusData.status_message || '接口返回失败'));
+                    }
                 }
 
                 if (imageUrl) {
@@ -321,15 +335,13 @@
                     imageLoading.classList.add('hidden');
                     imageResult.classList.remove('hidden');
                 } else {
-                    // 把真实数据的一部分截取出来显示在错误提示里，方便我们排查
-                    const debugInfo = JSON.stringify(result).substring(0, 150);
-                    throw new Error('未找到图片字段，原数据: ' + debugInfo + '...');
+                    throw new Error('抱歉，AI 画得有点慢，等待超时了，请重试');
                 }
             } catch (error) {
                 console.error(error);
                 imageLoading.classList.add('hidden');
                 generateBtn.classList.remove('hidden');
-                showToast(`生成失败: ${error.message}`);
+                showToast(`出错啦: ${error.message}`);
             }
         }
 
@@ -409,7 +421,7 @@
             toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2 rounded-full text-[10px] z-50 shadow-2xl';
             toast.innerText = msg;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000); // 增加了一点显示时间，方便看报错信息
+            setTimeout(() => toast.remove(), 4000); 
         }
 
         document.querySelector('[data-tier="元气组合"]').click();
