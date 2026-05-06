@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floral Muse Student | 校园鲜花平替</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ins-pink: #f8e1e1;
+            --ins-beige: #fdfbf7;
+            --ins-text: #5a4a42;
+            --ins-accent: #d4a373;
+        }
+        body {
+            background-color: var(--ins-beige);
+            color: var(--ins-text);
+            font-family: 'Noto+Sans+SC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        h1, h2, .serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .flower-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .flower-card.selected {
+            border-color: var(--ins-accent);
+            background-color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .ins-shadow {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        /* 加载动画 */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--ins-accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部展示区 -->
+    <header class="h-screen flex flex-col justify-center items-center text-center p-6 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-20">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <circle cx="20" cy="20" r="35" fill="var(--ins-pink)" />
+                <circle cx="80" cy="70" r="45" fill="#e9edc9" />
+            </svg>
+        </div>
+        <div class="z-10">
+            <div class="inline-block px-3 py-1 border border-gray-400 text-xs tracking-widest mb-6 uppercase">Campus Floral Hub</div>
+            <h1 class="text-5xl md:text-7xl mb-4 font-bold text-gray-800">Floral Muse</h1>
+            <p class="text-base md:text-lg italic opacity-80 mb-8 serif">“用一杯奶茶的价格，换宿舍里一周的浪漫”</p>
+            <a href="#selection-zone" class="bg-gray-800 text-white px-10 py-3 rounded-full hover:bg-gray-700 transition duration-300 tracking-widest text-sm">选择我的小情绪</a>
+        </div>
+        <div class="absolute bottom-10 animate-bounce">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </header>
+
+    <!-- 花材选择区 -->
+    <section id="selection-zone" class="max-w-6xl mx-auto px-6 py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl mb-2">心情采摘区</h2>
+            <p class="text-gray-400 text-sm italic">限选 1-3 种，让你的桌面不再孤单</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="flower-grid">
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="white-rose" data-name="骄傲玫瑰（白色）" data-en="white roses">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🤍</div>
+                <h3 class="font-medium text-sm">骄傲玫瑰（白）</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Pure White</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="apple-jack" data-name="苹果杰克玫瑰" data-en="apple jack roses">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🍎</div>
+                <h3 class="font-medium text-sm">苹果杰克</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Apple Jack</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="carnation" data-name="康乃馨" data-en="carnations">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🌸</div>
+                <h3 class="font-medium text-sm">康乃馨</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Carnation</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="jasmine" data-name="茉莉" data-en="jasmine flowers">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🌿</div>
+                <h3 class="font-medium text-sm">茉莉</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Jasmine</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="daisy" data-name="雏菊" data-en="daisies">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🌼</div>
+                <h3 class="font-medium text-sm">雏菊</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Daisy</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="gardenia" data-name="栀子" data-en="gardenia flowers">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">🎐</div>
+                <h3 class="font-medium text-sm">栀子</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Gardenia</p>
+            </div>
+            <div class="flower-card p-5 rounded-3xl bg-white/40 text-center" data-id="tweedia" data-name="蓝星花" data-en="blue tweedia">
+                <div class="aspect-square mb-4 rounded-2xl overflow-hidden bg-white flex items-center justify-center text-4xl shadow-sm">✨</div>
+                <h3 class="font-medium text-sm">蓝星花</h3>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Tweedia</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 定制细节配置区 -->
+    <section id="config-area" class="max-w-4xl mx-auto px-6 py-10 hidden">
+        <div class="bg-white rounded-[2rem] p-8 ins-shadow">
+            <h2 class="text-xl mb-8 text-center serif italic tracking-widest text-gray-400">— 定制小卡 —</h2>
+            
+            <div class="space-y-8">
+                <!-- 主花/次花角色分配 -->
+                <div id="role-selection">
+                    <p class="text-xs font-bold uppercase tracking-widest mb-4">设定主配关系</p>
+                    <div id="role-inputs" class="space-y-3"></div>
+                </div>
+
+                <!-- 主花数量 -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-xs font-bold uppercase tracking-widest">主花数量 (1-10支)：</label>
+                        <span id="qty-display" class="text-sm font-medium">1 支</span>
+                    </div>
+                    <input type="range" id="main-qty" min="1" max="10" value="1" class="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-gray-800">
+                </div>
+
+                <!-- 价格档位 -->
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest mb-4">选择适合的预算：</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button class="tier-btn py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 transition text-center" data-tier="单支尝鲜">
+                            <span class="block text-[11px] font-medium">单支尝鲜</span>
+                            <span class="text-xs text-green-600 font-bold">¥9.9</span>
+                        </button>
+                        <button class="tier-btn py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 transition text-center active" data-tier="元气组合">
+                            <span class="block text-[11px] font-medium">元气组合</span>
+                            <span class="text-xs text-orange-600 font-bold">¥29.9</span>
+                        </button>
+                        <button class="tier-btn py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 transition text-center" data-tier="心动礼盒">
+                            <span class="block text-[11px] font-medium">心动礼盒</span>
+                            <span class="text-xs text-blue-600 font-bold">¥49.9</span>
+                        </button>
+                        <button class="tier-btn py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 transition text-center" data-tier="浪漫表白">
+                            <span class="block text-[11px] font-medium">浪漫表白</span>
+                            <span class="text-xs text-pink-600 font-bold">¥59.9</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 结果展示区 -->
+    <section id="result-area" class="max-w-xl mx-auto px-6 py-20 hidden">
+        <div class="bg-[#f0f0f0] p-8 rounded-2xl border border-white relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 py-1 text-[10px] border border-gray-200 tracking-[0.2em] uppercase">Order Manifest</div>
+            <div id="combination-text" class="text-sm text-center italic space-y-4 pt-4"></div>
+            
+            <!-- 生成图片预览区域 -->
+            <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                <button id="generate-btn" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-full text-xs tracking-widest hover:bg-gray-50 transition flex items-center justify-center mx-auto shadow-sm">
+                    <span>✨ 生成专属预览图</span>
+                </button>
+                <div id="image-loading" class="hidden mt-4 text-xs text-gray-500 flex flex-col items-center justify-center">
+                    <div class="loader mb-2"></div>
+                    AI 正在构思您的浪漫花束...
+                </div>
+                <div id="image-result" class="hidden mt-6">
+                    <div class="serif italic text-sm mb-4 text-gray-500">"为你精心准备的效果预览"</div>
+                    <div class="rounded-2xl overflow-hidden shadow-2xl mx-auto w-full md:w-4/5 bg-white p-2">
+                        <img id="bouquet-img" src="" alt="Generated Bouquet" class="w-full h-auto rounded-xl object-cover min-h-[300px] bg-gray-50">
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-4">提示：由于季节和光线差异，实物可能略有不同</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <button class="bg-gray-800 text-white px-8 py-3 rounded-full text-xs tracking-widest hover:scale-105 transition shadow-lg">确认并支付订单</button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-gray-400 text-[10px] uppercase tracking-widest">
+        <p>Floral Muse for Students | 让美学回归日常</p>
+    </footer>
+
+    <script>
+        // 【注意】：此处移除了所有 API Key，前端纯净安全
+        let selectedFlowers = [];
+        let mainFlowerId = null;
+        let selectedTier = '元气组合';
+
+        const flowerCards = document.querySelectorAll('.flower-card');
+        const configArea = document.getElementById('config-area');
+        const resultArea = document.getElementById('result-area');
+        const roleInputs = document.getElementById('role-inputs');
+        const mainQtyInput = document.getElementById('main-qty');
+        const qtyDisplay = document.getElementById('qty-display');
+        const combinationText = document.getElementById('combination-text');
+        const tierBtns = document.querySelectorAll('.tier-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const imageLoading = document.getElementById('image-loading');
+        const imageResult = document.getElementById('image-result');
+        const bouquetImg = document.getElementById('bouquet-img');
+
+        flowerCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const name = card.getAttribute('data-name');
+                const en = card.getAttribute('data-en');
+                if (selectedFlowers.find(f => f.id === id)) {
+                    selectedFlowers = selectedFlowers.filter(f => f.id !== id);
+                    card.classList.remove('selected');
+                } else {
+                    if (selectedFlowers.length < 3) {
+                        selectedFlowers.push({ id, name, en });
+                        card.classList.add('selected');
+                    } else {
+                        showToast("嘘~ 宿舍放不下这么多花啦！限选3种哦~");
+                    }
+                }
+                updateUI();
+                resetImageGeneration();
+            });
+        });
+
+        tierBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tierBtns.forEach(b => b.classList.remove('bg-gray-800', 'text-white', 'border-gray-800'));
+                btn.classList.add('bg-gray-800', 'text-white', 'border-gray-800');
+                selectedTier = btn.getAttribute('data-tier');
+                generateCombination();
+                resetImageGeneration();
+            });
+        });
+
+        mainQtyInput.addEventListener('input', (e) => {
+            qtyDisplay.innerText = `${e.target.value} 支`;
+            generateCombination();
+            resetImageGeneration();
+        });
+
+        // AI 图片生成逻辑 (通过安全的 Netlify 云函数调用)
+        async function generateAIImage() {
+            if (!selectedFlowers.length || !mainFlowerId) return;
+
+            const mainFlower = selectedFlowers.find(f => f.id === mainFlowerId);
+            const secondaryFlowers = selectedFlowers.filter(f => f.id !== mainFlowerId);
+            const qty = mainQtyInput.value;
+
+            if (!mainFlower) return;
+
+            // 构建绘图提示词
+            let wrappingStyle = "";
+            if (selectedTier === "单支尝鲜") wrappingStyle = "minimalist brown craft paper wrapping, rustic look";
+            else if (selectedTier === "元气组合") wrappingStyle = "aesthetic Korean style grid paper wrapping with a thin ribbon";
+            else if (selectedTier === "心动礼盒") wrappingStyle = "premium frosted semi-transparent flower box with a handle";
+            else wrappingStyle = "romantic dreamy layered tulle wrapping, soft and elegant";
+
+            const accents = secondaryFlowers.length > 0 ? `with accents of ${secondaryFlowers.map(f => f.en).join(' and ')}` : "";
+            const prompt = `A professional aesthetic 'ins style' photography of a flower bouquet. Main feature: ${qty} stems of ${mainFlower.en} as primary flowers ${accents}. Wrapping: ${wrappingStyle}. Soft natural window light, minimalist neutral cream background, clean composition, high-end florist quality. Close up shot.`;
+
+            generateBtn.classList.add('hidden');
+            imageLoading.classList.remove('hidden');
+            imageResult.classList.add('hidden');
+
+            try {
+                // 【核心修改】：通过 POST 请求调用后端接口，完全隐藏密钥
+                const response = await fetch('/.netlify/functions/generateImage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || errorData.error || '云函数请求失败');
+                }
+                
+                const result = await response.json();
+                
+                // 解析七牛云 Kling-v1 返回的图片结构
+                if (result.data && result.data[0] && result.data[0].url) {
+                    bouquetImg.src = result.data[0].url;
+                    imageLoading.classList.add('hidden');
+                    imageResult.classList.remove('hidden');
+                } else {
+                    throw new Error('未返回图片地址');
+                }
+            } catch (error) {
+                console.error(error);
+                imageLoading.classList.add('hidden');
+                generateBtn.classList.remove('hidden');
+                showToast(`生成失败: ${error.message}`);
+            }
+        }
+
+        generateBtn.addEventListener('click', generateAIImage);
+
+        function resetImageGeneration() {
+            generateBtn.classList.remove('hidden');
+            imageLoading.classList.add('hidden');
+            imageResult.classList.add('hidden');
+            bouquetImg.src = "";
+        }
+
+        function updateUI() {
+            if (selectedFlowers.length > 0) {
+                configArea.classList.remove('hidden');
+                resultArea.classList.remove('hidden');
+                // 确保有主花被选中
+                if (!mainFlowerId || !selectedFlowers.find(f => f.id === mainFlowerId)) {
+                    mainFlowerId = selectedFlowers[0].id;
+                }
+                roleInputs.innerHTML = selectedFlowers.map(flower => `
+                    <div class="flex items-center justify-between bg-white border border-gray-50 p-3 rounded-2xl shadow-sm">
+                        <span class="text-xs font-medium">${flower.name}</span>
+                        <div class="flex space-x-1">
+                            <button onclick="setRole('${flower.id}', true)" class="px-3 py-1 rounded-full text-[10px] transition ${mainFlowerId === flower.id ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400'}">主</button>
+                            <button onclick="setRole('${flower.id}', false)" class="px-3 py-1 rounded-full text-[10px] transition ${mainFlowerId !== flower.id ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400'}">次</button>
+                        </div>
+                    </div>
+                `).join('');
+                generateCombination();
+            } else {
+                configArea.classList.add('hidden');
+                resultArea.classList.add('hidden');
+            }
+        }
+
+        window.setRole = (id, isMain) => {
+            if (isMain) mainFlowerId = id;
+            else if (mainFlowerId === id) {
+                const other = selectedFlowers.find(f => f.id !== id);
+                mainFlowerId = other ? other.id : id;
+            }
+            updateUI();
+            resetImageGeneration();
+        };
+
+        function generateCombination() {
+            // 安全校验：如果没有选定花朵或主花ID，则退出
+            if (!selectedFlowers.length || !mainFlowerId) return;
+
+            const mainFlower = selectedFlowers.find(f => f.id === mainFlowerId);
+            const secondaryFlowers = selectedFlowers.filter(f => f.id !== mainFlowerId);
+            const qty = mainQtyInput.value;
+
+            // 再次确认主花数据是否存在
+            if (!mainFlower) return;
+
+            let html = `<div class="mb-2 uppercase text-[10px] tracking-widest text-gray-400">— 组合预览 —</div>`;
+            html += `<div class="font-bold text-lg">${mainFlower.name} <span class="text-gray-400">× ${qty}支</span></div>`;
+            if (secondaryFlowers.length > 0) {
+                const names = secondaryFlowers.map(f => f.name).join(' & ');
+                html += `<div class="text-xs text-gray-500 mt-1">搭配点缀: ${names}</div>`;
+            }
+
+            const tierMeta = {
+                '单支尝鲜': '环保牛皮纸简包装，送自己一个好心情。',
+                '元气组合': '韩系网格纸 + 英文缎带，拍照满分。',
+                '心动礼盒': '磨砂半透明提手礼盒，附带手写香氛卡片。',
+                '浪漫表白': '双色梦幻纱网包裹，自带滤镜感。'
+            };
+
+            html += `<div class="mt-6 px-4 py-2 border-t border-gray-300 inline-block text-[11px] leading-relaxed">
+                <span class="text-gray-400">打包方案：</span>${tierMeta[selectedTier]}
+            </div>`;
+            combinationText.innerHTML = html;
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-2 rounded-full text-[10px] z-50 shadow-2xl';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // 默认触发一次初始化
+        document.querySelector('[data-tier="元气组合"]').click();
+    </script>
+</body>
+</html>
